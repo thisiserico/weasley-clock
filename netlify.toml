@@ -1,0 +1,7 @@
+[build]
+  command = "npm run build"
+  functions = "function"
+
+[build.environment]
+  GO_IMPORT_PATH = "github.com/thisiserico/weasley-clock"
+
