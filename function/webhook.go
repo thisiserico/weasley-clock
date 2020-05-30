@@ -3,13 +3,13 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -22,7 +22,6 @@ const (
 
 type request struct {
 	Message struct {
-		Date int64 `json:"date"`
 		From struct {
 			ID int `json:"id"`
 		} `json:"from"`
@@ -30,66 +29,108 @@ type request struct {
 	} `json:"message"`
 }
 
+func (r request) isInitialMessage() bool {
+	return r.Message.Text == "/start"
+}
+
+type members map[int]string
+
+func (m members) name(req request) (string, error) {
+	chatID := req.Message.From.ID
+	if name, found := m[chatID]; found {
+		return name, nil
+	}
+
+	return "", fmt.Errorf("unrecognized chat ID %d", chatID)
+}
+
+type locations []string
+
+func (l locations) match(r request) (string, error) {
+	givenLocation := r.Message.Text
+	for _, location := range l {
+		if location == givenLocation {
+			return location, nil
+		}
+	}
+
+	return "", fmt.Errorf("unrecognized location %s", givenLocation)
+}
+
 func main() {
 	lambda.Start(handler)
 }
 
 func handler(r events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+	req, err := decodeRequest(r)
+	if err != nil {
+		return respond(http.StatusBadRequest, err)
+	}
+
+	if req.isInitialMessage() {
+		return respond(http.StatusOK, nil)
+	}
+
+	members, err := allowedMembers()
+	if err != nil {
+		return respond(http.StatusOK, err)
+	}
+
+	name, err := members.name(req)
+	if err != nil {
+		return respond(http.StatusOK, err)
+	}
+
+	locations := allowedLocations()
+	location, err := locations.match(req)
+	if err != nil {
+		return respond(http.StatusOK, err)
+	}
+
+	log.Printf("from %s -> %s", name, location)
+	return respond(http.StatusOK, nil)
+}
+
+func decodeRequest(r events.APIGatewayProxyRequest) (request, error) {
 	var req request
 	decoder := json.NewDecoder(bytes.NewBufferString(r.Body))
 	if err := decoder.Decode(&req); err != nil {
-		return response(http.StatusBadRequest, err)
+		return req, err
 	}
 
-	if req.Message.Text == "/start" {
-		return response(http.StatusOK, nil)
-	}
+	return req, nil
+}
 
+func allowedMembers() (members, error) {
 	acceptedMembers := os.Getenv(acceptedMembersEnvVar)
+
 	memberExtractor := regexp.MustCompile(`([a-z]+):(\d+)`)
 	if !memberExtractor.MatchString(acceptedMembers) {
-		log.Printf("invalid member list %s", acceptedMembers)
-		return response(http.StatusOK, nil)
+		return nil, fmt.Errorf("invalid member list %s", acceptedMembers)
 	}
 
 	memberMatches := memberExtractor.FindAllStringSubmatch(acceptedMembers, -1)
-	members := make(map[int]string, len(memberMatches))
+	mems := make(members, len(memberMatches))
 	for _, match := range memberMatches {
 		chatID, err := strconv.Atoi(match[2])
 		if err != nil {
-			log.Printf("invalid chat ID %s", match[2])
-			return response(http.StatusOK, nil)
+			return nil, fmt.Errorf("invalid chat ID %s", match[2])
 		}
-		members[chatID] = match[1]
+
+		mems[chatID] = match[1]
 	}
 
-	name, allowed := members[req.Message.From.ID]
-	if !allowed {
-		log.Printf("unrecognized chat ID %d", req.Message.From.ID)
-		return response(http.StatusOK, nil)
-	}
-
-	locations := strings.Split(os.Getenv(acceptedLocationsEnvVar), " ")
-	var allowedLocation bool
-	for _, location := range locations {
-		if location == req.Message.Text {
-			allowedLocation = true
-			break
-		}
-	}
-	if !allowedLocation {
-		log.Printf("unrecognized location %s", req.Message.Text)
-		return response(http.StatusOK, nil)
-	}
-
-	log.Printf("from %s at %s: %s", name, time.Unix(req.Message.Date, 0), req.Message.Text)
-
-	return response(http.StatusOK, nil)
+	return mems, nil
 }
 
-func response(code int, err error) (*events.APIGatewayProxyResponse, error) {
+func allowedLocations() locations {
+	return strings.Split(os.Getenv(acceptedLocationsEnvVar), " ")
+}
+
+func respond(code int, err error) (*events.APIGatewayProxyResponse, error) {
 	resp := &events.APIGatewayProxyResponse{StatusCode: code}
 	if err != nil {
+		log.Println(err)
 		resp.Body = err.Error()
 	}
 
