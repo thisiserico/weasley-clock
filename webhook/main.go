@@ -131,6 +131,8 @@ func allowedLocations() locations {
 }
 
 func updateLocation(name, location string) error {
+	log.Printf("%s -> %s", name, location)
+
 	endpoint, _ := url.Parse(os.Getenv(firebaseAddressEnvVar))
 	endpoint.Path = path.Join(endpoint.Path, "location.json")
 
