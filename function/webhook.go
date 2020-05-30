@@ -5,15 +5,14 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-func main() {
-	lambda.Start(handler)
-}
+const acceptedMembersEnvVar = "ACCEPTED_MEMBERS"
 
 type request struct {
 	Message struct {
@@ -25,11 +24,20 @@ type request struct {
 	} `json:"message"`
 }
 
+func main() {
+	lambda.Start(handler)
+}
+
 func handler(r events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+	decoder := json.NewDecoder(bytes.NewBufferString(r.Body))
+
 	var req request
-	if err := json.NewDecoder(bytes.NewBufferString(r.Body)).Decode(&req); err != nil {
+	if err := decoder.Decode(&req); err != nil {
 		return response(http.StatusInternalServerError, err)
 	}
+
+	acceptedMembers := os.Getenv(acceptedMembersEnvVar)
+	log.Printf("accepted members: %s", acceptedMembers)
 
 	log.Printf(
 		"from %d at %s: %s",
