@@ -1,0 +1,10 @@
+{
+  "name": "weasley-clock",
+  "scripts": {
+    "build": "run-p build:**",
+    "build:webhook": "go get ./webhook && go build -o function/webhook ./webhook/main.go"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}
