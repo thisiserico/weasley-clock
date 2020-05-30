@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -18,6 +20,8 @@ import (
 const (
 	acceptedMembersEnvVar   = "ACCEPTED_MEMBERS"
 	acceptedLocationsEnvVar = "ACCEPTED_LOCATIONS"
+
+	firebaseAddressEnvVar = "FIREBASE_ADDRESS"
 )
 
 type request struct {
@@ -87,8 +91,7 @@ func handler(r events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, 
 		return respond(http.StatusOK, err)
 	}
 
-	log.Printf("from %s -> %s", name, location)
-	return respond(http.StatusOK, nil)
+	return respond(http.StatusOK, updateLocation(name, location))
 }
 
 func decodeRequest(r events.APIGatewayProxyRequest) (request, error) {
@@ -125,6 +128,28 @@ func allowedMembers() (members, error) {
 
 func allowedLocations() locations {
 	return strings.Split(os.Getenv(acceptedLocationsEnvVar), " ")
+}
+
+func updateLocation(name, location string) error {
+	endpoint, _ := url.Parse(os.Getenv(firebaseAddressEnvVar))
+	endpoint.Path = path.Join(endpoint.Path, "location.json")
+
+	payload := map[string]string{name: location}
+	js, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, endpoint.String(), bytes.NewBuffer(js))
+	if err != nil {
+		return err
+	}
+	req.Header.Add("content-type", "application/json")
+
+	client := &http.Client{}
+	_, err = client.Do(req)
+
+	return err
 }
 
 func respond(code int, err error) (*events.APIGatewayProxyResponse, error) {
