@@ -1,11 +1,14 @@
 <template>
   <div id="app">
-    <Clock v-bind:locations="locations"/>
+    <Clock
+      v-bind:people="people"
+      v-bind:statuses="statuses"
+    />
   </div>
 </template>
 
 <script>
-import * as locationsAPI from '@/services/locations'
+import * as statusesAPI from '@/services/statuses'
 import Clock from './Clock.vue'
 
 export default {
@@ -13,13 +16,15 @@ export default {
     Clock
   },
   data() {
-    const locations = {}
-    return { locations }
+    const people = {}
+    const statuses = []
+    return { people, statuses }
   },
   created() {
-    locationsAPI.fetchAll()
-      .then(locations => {
-        this.locations = locations
+    statusesAPI.fetchEverything()
+      .then(json => {
+        this.people = json.people
+        this.statuses = json.statuses
       })
   }
 }
