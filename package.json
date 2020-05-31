@@ -1,11 +1,47 @@
 {
   "name": "weasley-clock",
+  "private": true,
   "scripts": {
+    "watch": "vue-cli-service serve",
+    "lint": "vue-cli-service lint",
     "build": "run-p build:**",
     "build:webhook": "go get ./webhook && go build -o function/webhook ./webhook/main.go",
-    "build:locations": "go get ./locations && go build -o function/locations ./locations/main.go"
+    "build:locations": "go get ./locations && go build -o function/locations ./locations/main.go",
+    "build:ui": "vue-cli-service build",
+    "serve": "serve -s dist"
   },
   "devDependencies": {
-    "npm-run-all": "^4.1.5"
-  }
+    "@vue/cli-plugin-babel": "^4.4.1",
+    "@vue/cli-plugin-eslint": "^4.4.1",
+    "@vue/cli-service": "^4.4.1",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.1.0",
+    "eslint-plugin-vue": "^6.2.2",
+    "npm-run-all": "^4.1.5",
+    "serve": "^11.3.1",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "dependencies": {
+    "core-js": "^3.6.5",
+    "vue": "^2.6.11"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
 }
