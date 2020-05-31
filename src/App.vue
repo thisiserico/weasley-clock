@@ -6,12 +6,23 @@
 </template>
 
 <script>
+import * as locationsAPI from '@/services/locations'
 import HelloWorld from './components/HelloWorld.vue'
 
 export default {
   name: 'App',
   components: {
     HelloWorld
+  },
+  data() {
+    const locations = {}
+    return { locations }
+  },
+  created() {
+    locationsAPI.fetchAll()
+      .then( locations => {
+        this.locations = locations
+      })
   }
 }
 </script>
