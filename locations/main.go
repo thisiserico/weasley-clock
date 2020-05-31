@@ -61,5 +61,8 @@ func respond(code int, resp interface{}) (*events.APIGatewayProxyResponse, error
 	return &events.APIGatewayProxyResponse{
 		StatusCode: code,
 		Body:       string(body),
+		Headers: map[string]string{
+			"access-control-allow-origin": "*",
+		},
 	}, nil
 }
