@@ -1,20 +1,19 @@
 <template>
-  <li class="clock-hand">
-    {{ name }} -> {{ status}}
+  <li class="clock-status">
+    {{ status }}
   </li>
 </template>
 
 <script>
 export default {
   props: {
-    name: String,
     status: String
   }
 }
 </script>
 
 <style scoped>
-.clock-hand {
+.clock-status {
   display: inline-block;
   margin: 1rem 0;
   width: 100%;
