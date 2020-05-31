@@ -6,12 +6,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/thisiserico/weasley-clock/pkg/firebase"
 	"github.com/thisiserico/weasley-clock/pkg/netlify"
 	"github.com/thisiserico/weasley-clock/pkg/responder"
+	"github.com/thisiserico/weasley-clock/pkg/telegram"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -25,7 +27,15 @@ type request struct {
 }
 
 func (r request) isInitialMessage() bool {
-	return r.Message.Text == "/start"
+	return r.status() == "/start"
+}
+
+func (r request) status() string {
+	return strings.ToLower(r.Message.Text)
+}
+
+func (r request) chatID() int {
+	return r.Message.From.ID
 }
 
 func main() {
@@ -36,10 +46,6 @@ func handler(ctx context.Context, r events.APIGatewayProxyRequest) (*events.APIG
 	req, err := decodeRequest(r)
 	if err != nil {
 		return responder.Respond(http.StatusBadRequest, nil, err)
-	}
-
-	if req.isInitialMessage() {
-		return responder.Respond(http.StatusOK, nil, nil)
 	}
 
 	group, ctx := errgroup.WithContext(ctx)
@@ -62,7 +68,15 @@ func handler(ctx context.Context, r events.APIGatewayProxyRequest) (*events.APIG
 		return responder.Respond(http.StatusOK, nil, err)
 	}
 
-	name, err := netlify.FetchMembers().NameFromChat(req.Message.From.ID)
+	if req.isInitialMessage() {
+		return responder.Respond(
+			http.StatusOK,
+			nil,
+			telegram.RequestNextStatus(req.chatID(), allStatuses),
+		)
+	}
+
+	name, err := netlify.FetchMembers().NameFromChat(req.chatID())
 	if err != nil {
 		return responder.Respond(http.StatusOK, nil, err)
 	}
@@ -72,16 +86,19 @@ func handler(ctx context.Context, r events.APIGatewayProxyRequest) (*events.APIG
 		return responder.Respond(http.StatusOK, nil, err)
 	}
 
-	if !allStatuses.Exists(req.Message.Text) {
-		err := fmt.Errorf("unrecognized status %s", req.Message.Text)
+	if !allStatuses.Exists(req.status()) {
+		err := fmt.Errorf("unrecognized status %s", req.status())
 		return responder.Respond(http.StatusOK, nil, err)
 	}
 
-	return responder.Respond(
-		http.StatusOK,
-		nil,
-		firebase.UpdateLocation(name, req.Message.Text),
-	)
+	group, ctx = errgroup.WithContext(ctx)
+	group.Go(func() error {
+		return firebase.UpdateLocation(name, req.status())
+	})
+	group.Go(func() error {
+		return telegram.RequestNextStatus(req.chatID(), allStatuses)
+	})
+	return responder.Respond(http.StatusOK, nil, group.Wait())
 }
 
 func decodeRequest(r events.APIGatewayProxyRequest) (request, error) {
