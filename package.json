@@ -5,8 +5,8 @@
     "watch": "vue-cli-service serve",
     "lint": "vue-cli-service lint",
     "build": "run-p build:**",
-    "build:webhook": "go get ./webhook && go build -o function/webhook ./webhook/main.go",
-    "build:locations": "go get ./locations && go build -o function/locations ./locations/main.go",
+    "build:webhook": "go get ./pkg/webhook && go build -o function/webhook ./pkg/webhook/main.go",
+    "build:statuses": "go get ./pkg/statuses && go build -o function/statuses ./pkg/statuses/main.go",
     "build:ui": "vue-cli-service build",
     "serve": "serve -s dist"
   },
