@@ -1,0 +1,10 @@
+# github.com/aws/aws-lambda-go v1.17.0
+## explicit
+github.com/aws/aws-lambda-go/events
+github.com/aws/aws-lambda-go/lambda
+github.com/aws/aws-lambda-go/lambda/handlertrace
+github.com/aws/aws-lambda-go/lambda/messages
+github.com/aws/aws-lambda-go/lambdacontext
+# golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
+## explicit
+golang.org/x/sync/errgroup
