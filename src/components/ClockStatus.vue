@@ -1,13 +1,24 @@
 <template>
   <li class="clock-status">
-    {{ status }}
+    {{ assignation.status }}:
+
+    <ClockHand
+      v-for="(person, name) in assignation.people"
+      :key="name"
+      :name="person.name"
+    />
   </li>
 </template>
 
 <script>
+import ClockHand from './ClockHand.vue'
+
 export default {
+  components: {
+    ClockHand
+  },
   props: {
-    status: String
+    assignation: Object
   }
 }
 </script>
