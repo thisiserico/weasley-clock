@@ -1,18 +1,16 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Clock v-bind:locations="locations"/>
   </div>
 </template>
 
 <script>
 import * as locationsAPI from '@/services/locations'
-import HelloWorld from './components/HelloWorld.vue'
+import Clock from './Clock.vue'
 
 export default {
-  name: 'App',
   components: {
-    HelloWorld
+    Clock
   },
   data() {
     const locations = {}
@@ -20,7 +18,7 @@ export default {
   },
   created() {
     locationsAPI.fetchAll()
-      .then( locations => {
+      .then(locations => {
         this.locations = locations
       })
   }
