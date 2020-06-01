@@ -1,5 +1,5 @@
 <template>
-  <svg :width="diameter" :height="diameter">
+  <svg :viewBox="viewBox">
     <circle :style="circle" :cx="radius" :cy="radius" :r="circleRadius"></circle>
 
     <Status
@@ -54,6 +54,10 @@ export default {
       return this.radius * 2
     },
 
+    viewBox() {
+      return "0 0 " + this.diameter + " " + this.diameter
+    },
+
     circle() {
       return "stroke: #" + this.dark + "; stroke-width: " + this.radius * .05 + "px; fill:#" + this.light
     },
@@ -73,6 +77,8 @@ export default {
 
 <style scoped>
 svg {
+  width: 90%;
+  max-width: 500px;
   display: block;
   position: absolute;
   top: 50%;
