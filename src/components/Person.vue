@@ -1,9 +1,17 @@
 <template>
   <g>
+    <line
+      :style="line"
+      :x1="radius"
+      :y1="radius"
+      :x2="radius"
+      :y2="p30radius"
+      :transform="rotation"
+    />
     <ellipse
       :style="ellipse"
       :cx="radius"
-      :cy="p40p80radius"
+      :cy="shiftedp40radius"
       :rx="p8radius"
       :ry="p8radius"
       :transform="rotation"
@@ -13,7 +21,7 @@
       text-anchor="middle"
       alignment-baseline="middle"
       :x="radius"
-      :y="p40p80radius"
+      :y="shiftedp40radius"
       :transform="rotation">
       {{ name.charAt(0).toUpperCase() }}
     </text>
@@ -25,11 +33,15 @@ export default {
   props: {
     degrees: Number,
     radius: Number,
+    index: Number,
     name: String,
     dark: String,
     light: String
   },
   computed: {
+    line() {
+      return "stroke: #" + this.dark + "; stroke-width: " + this.radius * .01 + "px"
+    },
     ellipse() {
       return "fill: #" + this.dark
     },
@@ -39,9 +51,11 @@ export default {
     p8radius() {
       return this.radius * .08
     },
-    p40p80radius() {
-      const rand = Math.random() * 40 / 100
-      return this.radius * (0.4 + rand)
+    p30radius() {
+      return this.radius * .3
+    },
+    shiftedp40radius() {
+      return this.radius * .4 + this.index * this.p8radius * 1.4
     },
     rotation() {
       return "rotate(" + this.degrees + " " + this.radius + " " + this.radius + ")"
