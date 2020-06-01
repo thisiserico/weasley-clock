@@ -3,6 +3,10 @@
     <Clock
       v-bind:people="people"
       v-bind:statuses="statuses"
+
+      :radius="250"
+      dark="4c4c4c"
+      light="945353"
     />
   </div>
 </template>
@@ -18,6 +22,7 @@ export default {
   data() {
     const people = {}
     const statuses = []
+
     return { people, statuses }
   },
   created() {
@@ -31,12 +36,13 @@ export default {
 </script>
 
 <style>
-#app {
+body {
+  margin-top: 60px;
+  background: #b89f9f;
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 </style>

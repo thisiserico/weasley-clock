@@ -1,27 +1,40 @@
 <template>
-  <ul class="clock-statuses">
-    <ClockStatus
-      v-for="assignation in assignations"
+  <svg :width="diameter" :height="diameter">
+    <circle :style="circle" :cx="radius" :cy="radius" :r="circleRadius"></circle>
+
+    <Status
+      v-for="(assignation, index) in assignations"
       :key="assignation.status"
       :assignation="assignation"
+      :index="index"
+      :elements="assignations.length"
+      :radius="radius"
+      :dark="dark"
     />
-  </ul>
+
+    <circle :style="spinner" :cx="radius" :cy="radius" :r="spinnerRadius"></circle>
+  </svg>
 </template>
 
 <script>
-import ClockStatus from './ClockStatus.vue'
+import Status from './Status.vue'
 
 export default {
   components: {
-    ClockStatus
+    Status
   },
   props: {
     people: Object,
-    statuses: Array
+    statuses: Array,
+
+    radius: Number,
+    dark: String,
+    light: String
   },
   computed: {
     assignations() {
       const usedStatuses = {}
+
       for (const name in this.people) {
         const person = this.people[name]
         if (usedStatuses[person.status] === undefined) {
@@ -35,14 +48,34 @@ export default {
         'status': status,
         'people': usedStatuses[status] || {}
       }))
+    },
+    diameter() {
+      return this.radius * 2
+    },
+
+    circle() {
+      return "stroke: #" + this.dark + "; stroke-width: " + this.radius * .05 + "px; fill:#" + this.light
+    },
+    circleRadius() {
+      return this.radius * .95
+    },
+
+    spinner() {
+      return "stroke: #" + this.dark + "; stroke-width: " + this.radius * .02 + "px; fill:#" + this.light
+    },
+    spinnerRadius() {
+      return this.radius * .05
     }
-  }
+  },
 }
 </script>
 
 <style scoped>
-.clock-statuses {
-  padding: 0;
-  list-style: none;
+svg {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>
