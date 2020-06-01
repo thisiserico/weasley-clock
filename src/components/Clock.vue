@@ -10,6 +10,7 @@
       :elements="assignations.length"
       :radius="radius"
       :dark="dark"
+      :light="light"
     />
 
     <circle :style="spinner" :cx="radius" :cy="radius" :r="spinnerRadius"></circle>
