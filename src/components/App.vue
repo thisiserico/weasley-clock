@@ -40,7 +40,8 @@ export default {
 
     fetch()
 
-    let looper = setInterval(fetch, 10000)
+    const refreshIntervalMs = 20000
+    let looper = setInterval(fetch, refreshIntervalMs)
 
     window.addEventListener('blur', () => {
       clearInterval(looper)
@@ -48,7 +49,7 @@ export default {
 
     window.addEventListener('focus', () => {
       fetch()
-      looper = setInterval(fetch, 10000)
+      looper = setInterval(fetch, refreshIntervalMs)
     })
   }
 }

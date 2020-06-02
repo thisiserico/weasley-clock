@@ -42,7 +42,7 @@ export default {
     },
 
     needleLength() {
-      return this.radius * -.7 + this.index * this.personRadius * 2
+      return this.radius * -.75 + this.index * this.personRadius * 1.5
     },
     needleStyle() {
       const strokeWidth = this.radius * .02
@@ -50,7 +50,7 @@ export default {
     },
 
     personPosition() {
-      return this.radius * -.6 + this.index * this.personRadius * 1.5
+      return this.radius * -.65 + this.index * this.personRadius * 1.5
     },
     personRadius() {
       return this.radius * .08

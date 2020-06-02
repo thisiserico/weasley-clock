@@ -12,6 +12,7 @@
       :key="status"
       :status="status"
       :rotation="rotation"
+      :sliceDegrees="sliceDegrees"
       :radius="clockRadius"
       :darkColor="darkColor"
       :lightColor="lightColor"
@@ -70,12 +71,13 @@ export default {
       return `stroke: ${this.darkColor}; stroke-width: ${strokeWidth}px; fill: ${this.lightColor}`
     },
 
+    sliceDegrees() {
+      return 360 / this.statuses.length
+    },
     rotatedStatuses() {
-      const elCount = this.statuses.length
-
       return this.statuses.reduce((statuses, status, index) => ({
         ...statuses,
-        [status]: index * 360 / elCount,
+        [status]: index * this.sliceDegrees
       }), {})
     },
 
