@@ -29,15 +29,22 @@ export default {
 
     return { people, statuses, radius, darkColor, lightColor }
   },
-  created() {
-    const fetch = () => statusesAPI.fetchEverything()
-      .then(json => {
-        this.people = json.people
-        this.statuses = json.statuses
-      })
+  mounted() {
+    window.addEventListener('focus', () => {
+      this.fetch()
+    })
+  },
 
-    fetch()
-    setInterval(fetch, 60000)
+  created() {
+    this.fetch = () => {
+      statusesAPI.fetchEverything()
+        .then(json => {
+          this.people = json.people
+          this.statuses = json.statuses
+        })
+      }
+
+    this.fetch()
   }
 }
 </script>
