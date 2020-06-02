@@ -28,9 +28,8 @@
 <script>
 export default {
   props: {
-    index: Number,
     name: String,
-    degrees: Number,
+    rotation: Number,
 
     radius: Number,
     darkColor: String,
@@ -38,7 +37,7 @@ export default {
   },
   computed: {
     handStyle() {
-      return `transform: rotate(${this.degrees}deg)`
+      return `transform: rotate(${this.rotation}deg); transition: transform 1s cubic-bezier(0.2, 1.4, 0.5, 1) 0s`
     },
 
     needleLength() {
@@ -50,8 +49,7 @@ export default {
     },
 
     personPosition() {
-      const shiftedPosition = this.index * this.personRadius * 1.4
-      return this.radius * -.6 + shiftedPosition
+      return this.radius * -.6
     },
     personRadius() {
       return this.radius * .08

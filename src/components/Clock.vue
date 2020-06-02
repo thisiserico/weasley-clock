@@ -8,12 +8,21 @@
     />
 
     <Status
-      v-for="(status, index) in statusAssignations"
-      :key="status.status"
-      :index="index"
-      :elCount="statusAssignations.length"
+      v-for="(rotation, status) in rotatedStatuses"
+      :key="status"
       :status="status"
+      :rotation="rotation"
       :radius="clockRadius"
+      :darkColor="darkColor"
+      :lightColor="lightColor"
+    />
+
+    <Person
+      v-for="(person, name) in people"
+      :key="name"
+      :name="person.name"
+      :rotation="rotatedStatuses[person.status]"
+      :radius="radius"
       :darkColor="darkColor"
       :lightColor="lightColor"
     />
@@ -28,10 +37,12 @@
 </template>
 
 <script>
+import Person from './Person.vue'
 import Status from './Status.vue'
 
 export default {
   components: {
+    Person,
     Status
   },
   props: {
@@ -58,21 +69,13 @@ export default {
       return `stroke: ${this.darkColor}; stroke-width: ${strokeWidth}px; fill: ${this.lightColor}`
     },
 
-    statusAssignations() {
-      const statuses = Object.entries(this.people).reduce((statuses, [name, person]) => {
-        return {
-          ...statuses,
-          [person.status]: {
-            ...statuses[person.status],
-            [name]: person
-          }
-        }
-      }, {})
+    rotatedStatuses() {
+      const elCount = this.statuses.length
 
-      return this.statuses.map(status => ({
-        'status': status,
-        'people': statuses[status] || {}
-      }))
+      return this.statuses.reduce((statuses, status, index) => ({
+        ...statuses,
+        [status]: index * 360 / elCount,
+      }), {})
     },
 
     spinnerRadius() {
