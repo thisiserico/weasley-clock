@@ -30,11 +30,14 @@ export default {
     return { people, statuses, radius, darkColor, lightColor }
   },
   created() {
-    statusesAPI.fetchEverything()
+    const fetch = () => statusesAPI.fetchEverything()
       .then(json => {
         this.people = json.people
         this.statuses = json.statuses
       })
+
+    fetch()
+    setInterval(fetch, 60000)
   }
 }
 </script>
