@@ -29,6 +29,7 @@
 export default {
   props: {
     name: String,
+    index: Number,
     rotation: Number,
 
     radius: Number,
@@ -41,7 +42,7 @@ export default {
     },
 
     needleLength() {
-      return this.radius * -.7
+      return this.radius * -.7 + this.index * this.personRadius * 2
     },
     needleStyle() {
       const strokeWidth = this.radius * .02
@@ -49,7 +50,7 @@ export default {
     },
 
     personPosition() {
-      return this.radius * -.6
+      return this.radius * -.6 + this.index * this.personRadius * 1.5
     },
     personRadius() {
       return this.radius * .08

@@ -18,9 +18,10 @@
     />
 
     <Person
-      v-for="(person, name) in people"
+      v-for="(person, name, index) in people"
       :key="name"
       :name="person.name"
+      :index="index"
       :rotation="rotatedStatuses[person.status]"
       :radius="radius"
       :darkColor="darkColor"
