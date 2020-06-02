@@ -1,24 +1,26 @@
 <template>
   <g>
-    <g v-if="Object.keys(assignation.people).length > 0">
+    <g v-if="Object.keys(status.people).length > 0">
       <Person
-        v-for="(person, name, index) in assignation.people"
+        v-for="(person, name, index) in status.people"
         :key="name"
-        :degrees="degrees"
-        :radius="radius"
         :index="index"
         :name="person.name"
-        :dark="dark"
-        :light="light"
+        :degrees="degrees"
+        :radius="radius"
+        :darkColor="darkColor"
+        :lightColor="lightColor"
       />
     </g>
 
     <text
+      x=0
+      :y="statusPosition"
+      :transform="statusRotation"
       text-anchor="middle"
-      :x="radius"
-      :y="p20radius"
-      :transform="rotation">
-      {{ assignation.status }}
+      :style="statusStyle"
+    >
+      {{ status.status }}
     </text>
   </g>
 </template>
@@ -31,22 +33,28 @@ export default {
     Person
   },
   props: {
-    assignation: Object,
+    status: Object,
     index: Number,
-    elements: Number,
+    elCount: Number,
+
     radius: Number,
-    dark: String,
-    light: String
+    darkColor: String,
+    lightColor: String
   },
   computed: {
-    p20radius() {
-      return this.radius * .2
-    },
     degrees() {
-      return this.index * 360 / this.elements
+      return this.index * 360 / this.elCount
     },
-    rotation() {
-      return "rotate(" + this.degrees + " " + this.radius + " " + this.radius + ")"
+
+    statusPosition() {
+      return this.radius * -.8
+    },
+    statusStyle() {
+      const fontSize = this.radius * .1
+      return `fill: ${this.darkColor}; font-size: ${fontSize}px; font-weight: bold`
+    },
+    statusRotation() {
+      return `rotate(${this.degrees})`
     }
   }
 }

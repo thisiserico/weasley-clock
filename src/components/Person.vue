@@ -1,28 +1,25 @@
 <template>
-  <g>
+  <g :style="handStyle">
     <line
-      :style="line"
-      :x1="radius"
-      :y1="radius"
-      :x2="radius"
-      :y2="p30radius"
-      :transform="rotation"
+      x1=0
+      y1=0
+      x2=0
+      :y2="needleLength"
+      :style="needleStyle"
     />
-    <ellipse
-      :style="ellipse"
-      :cx="radius"
-      :cy="shiftedp40radius"
-      :rx="p8radius"
-      :ry="p8radius"
-      :transform="rotation"
+    <circle
+      cx=0
+      :cy="personPosition"
+      :r="personRadius"
+      :style="personStyle"
     />
     <text
-      :style="text"
       text-anchor="middle"
       alignment-baseline="middle"
-      :x="radius"
-      :y="shiftedp40radius"
-      :transform="rotation">
+      x=0
+      :y="personPosition"
+      :style="nameStyle"
+    >
       {{ name.charAt(0).toUpperCase() }}
     </text>
   </g>
@@ -31,34 +28,41 @@
 <script>
 export default {
   props: {
-    degrees: Number,
-    radius: Number,
     index: Number,
     name: String,
-    dark: String,
-    light: String
+    degrees: Number,
+
+    radius: Number,
+    darkColor: String,
+    lightColor: String
   },
   computed: {
-    line() {
-      return "stroke: #" + this.dark + "; stroke-width: " + this.radius * .01 + "px"
+    handStyle() {
+      return `transform: rotate(${this.degrees}deg)`
     },
-    ellipse() {
-      return "fill: #" + this.dark
+
+    needleLength() {
+      return this.radius * -.7
     },
-    text() {
-      return "fill: #" + this.light + "; font-weight: bold"
+    needleStyle() {
+      const strokeWidth = this.radius * .02
+      return `stroke: ${this.darkColor}; stroke-width: ${strokeWidth}px`
     },
-    p8radius() {
+
+    personPosition() {
+      const shiftedPosition = this.index * this.personRadius * 1.4
+      return this.radius * -.6 + shiftedPosition
+    },
+    personRadius() {
       return this.radius * .08
     },
-    p30radius() {
-      return this.radius * .3
+    personStyle() {
+      return `fill: ${this.darkColor}`
     },
-    shiftedp40radius() {
-      return this.radius * .4 + this.index * this.p8radius * 1.4
-    },
-    rotation() {
-      return "rotate(" + this.degrees + " " + this.radius + " " + this.radius + ")"
+
+    nameStyle() {
+      const fontSize = this.radius * .06
+      return `fill: ${this.lightColor}; font-size: ${fontSize}px; font-weight: bold`
     }
   }
 }
