@@ -30,13 +30,7 @@ export default {
     return { people, statuses, radius, darkColor, lightColor }
   },
   mounted() {
-    window.addEventListener('focus', () => {
-      this.fetch()
-    })
-  },
-
-  created() {
-    this.fetch = () => {
+    const fetch = () => {
       statusesAPI.fetchEverything()
         .then(json => {
           this.people = json.people
@@ -44,7 +38,18 @@ export default {
         })
       }
 
-    this.fetch()
+    fetch()
+
+    let looper = setInterval(fetch, 10000)
+
+    window.addEventListener('blur', () => {
+      clearInterval(looper)
+    })
+
+    window.addEventListener('focus', () => {
+      fetch()
+      looper = setInterval(fetch, 10000)
+    })
   }
 }
 </script>
