@@ -1,27 +1,49 @@
 <template>
   <svg :viewBox="viewBox">
-    <circle :style="circle" :cx="radius" :cy="radius" :r="circleRadius"></circle>
-
-    <Status
-      v-for="(assignation, index) in assignations"
-      :key="assignation.status"
-      :assignation="assignation"
-      :index="index"
-      :elements="assignations.length"
-      :radius="radius"
-      :dark="dark"
-      :light="light"
+    <circle
+      cx=0
+      cy=0
+      :r="clockRadius"
+      :style="clockStyle"
     />
 
-    <circle :style="spinner" :cx="radius" :cy="radius" :r="spinnerRadius"></circle>
+    <Status
+      v-for="(rotation, status) in rotatedStatuses"
+      :key="status"
+      :status="status"
+      :rotation="rotation"
+      :radius="clockRadius"
+      :darkColor="darkColor"
+      :lightColor="lightColor"
+    />
+
+    <Person
+      v-for="(person, name, index) in people"
+      :key="name"
+      :name="person.name"
+      :index="index"
+      :rotation="rotatedStatuses[person.status]"
+      :radius="radius"
+      :darkColor="darkColor"
+      :lightColor="lightColor"
+    />
+
+    <circle
+      cx=0
+      cy=0
+      :r="spinnerRadius"
+      :style="spinnerStyle"
+    />
   </svg>
 </template>
 
 <script>
+import Person from './Person.vue'
 import Status from './Status.vue'
 
 export default {
   components: {
+    Person,
     Status
   },
   props: {
@@ -29,47 +51,40 @@ export default {
     statuses: Array,
 
     radius: Number,
-    dark: String,
-    light: String
+    darkColor: String,
+    lightColor: String
   },
   computed: {
-    assignations() {
-      const usedStatuses = {}
-
-      for (const name in this.people) {
-        const person = this.people[name]
-        if (usedStatuses[person.status] === undefined) {
-          usedStatuses[person.status] = {}
-        }
-
-        usedStatuses[person.status][name] = person
-      }
-
-      return this.statuses.map(status => ({
-        'status': status,
-        'people': usedStatuses[status] || {}
-      }))
-    },
-    diameter() {
-      return this.radius * 2
-    },
-
     viewBox() {
-      return "0 0 " + this.diameter + " " + this.diameter
+      const viewboxRadius = this.clockRadius * 1.1
+      const viewboxLength = viewboxRadius * 2
+
+      return `-${viewboxRadius} -${viewboxRadius} ${viewboxLength} ${viewboxLength}`
     },
 
-    circle() {
-      return "stroke: #" + this.dark + "; stroke-width: " + this.radius * .05 + "px; fill:#" + this.light
+    clockRadius() {
+      return this.radius
     },
-    circleRadius() {
-      return this.radius * .95
+    clockStyle() {
+      const strokeWidth = this.clockRadius * .05
+      return `stroke: ${this.darkColor}; stroke-width: ${strokeWidth}px; fill: ${this.lightColor}`
     },
 
-    spinner() {
-      return "stroke: #" + this.dark + "; stroke-width: " + this.radius * .02 + "px; fill:#" + this.light
+    rotatedStatuses() {
+      const elCount = this.statuses.length
+
+      return this.statuses.reduce((statuses, status, index) => ({
+        ...statuses,
+        [status]: index * 360 / elCount,
+      }), {})
     },
+
     spinnerRadius() {
-      return this.radius * .05
+      return this.clockRadius * .05
+    },
+    spinnerStyle() {
+      const strokeWidth = this.clockRadius * .02
+      return `stroke: ${this.darkColor}; stroke-width: ${strokeWidth}px; fill:${this.lightColor}`
     }
   },
 }
