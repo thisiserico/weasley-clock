@@ -12,6 +12,7 @@
 </template>
 
 <script>
+import * as fakeAPI from '@/services/fake-statuses'
 import * as statusesAPI from '@/services/statuses'
 import Clock from './Clock.vue'
 
@@ -27,11 +28,16 @@ export default {
     const darkColor = "#4c4c4c"
     const lightColor = "#945353"
 
-    return { people, statuses, radius, darkColor, lightColor }
+    const useFakeData = false
+    const refreshIntervalMs = 20000
+
+    return { people, statuses, radius, darkColor, lightColor, useFakeData, refreshIntervalMs }
   },
   mounted() {
     const fetch = () => {
-      statusesAPI.fetchEverything()
+      const api = this.useFakeData ? fakeAPI : statusesAPI
+
+      api.fetchEverything()
         .then(json => {
           this.people = json.people
           this.statuses = json.statuses
@@ -40,8 +46,7 @@ export default {
 
     fetch()
 
-    const refreshIntervalMs = 20000
-    let looper = setInterval(fetch, refreshIntervalMs)
+    let looper = setInterval(fetch, this.refreshIntervalMs)
 
     window.addEventListener('blur', () => {
       clearInterval(looper)
@@ -49,7 +54,7 @@ export default {
 
     window.addEventListener('focus', () => {
       fetch()
-      looper = setInterval(fetch, refreshIntervalMs)
+      looper = setInterval(fetch, this.refreshIntervalMs)
     })
   }
 }
