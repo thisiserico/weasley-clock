@@ -28,8 +28,8 @@ export default {
     const darkColor = "#4c4c4c"
     const lightColor = "#945353"
 
-    const useFakeData = false
-    const refreshIntervalMs = 20000
+    const useFakeData = true
+    const refreshIntervalMs = 5000
 
     return { people, statuses, radius, darkColor, lightColor, useFakeData, refreshIntervalMs }
   },
